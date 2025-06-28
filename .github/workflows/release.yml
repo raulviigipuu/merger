@@ -42,7 +42,7 @@ jobs:
 
           # Build binary with version
           go build -ldflags "-X main.Version=${{ github.ref_name }}" \
-            -o "$BIN_NAME" ./cmd
+            -o "$BIN_NAME" ./cmd/merger
 
           # Zip it
           ZIP_NAME="merger-${GOOS}-${GOARCH}.zip"
