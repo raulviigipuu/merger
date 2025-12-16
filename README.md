@@ -82,13 +82,31 @@ This tool is intentionally minimal — but the following features are planned:
 ### Build locally:
 
 ```
-go build -ldflags "-X main.Version=1.0.0" -o merger ./cmd
+go build -ldflags "-X main.Version=1.0.0" -o merger ./cmd/merger
+```
+
+### Install locally (to GOBIN)
+
+```
+go install -ldflags "-X main.Version=1.0.0" ./cmd/merger
 ```
 
 ### Run:
 
 ```
 ./merger -h
+```
+
+---
+
+## 🔧 Maintenance
+
+Upgrading go version in go.mod
+
+```
+go mod edit -go 1.25.3
+
+go mod tidy
 ```
 
 ---
