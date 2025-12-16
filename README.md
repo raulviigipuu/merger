@@ -99,6 +99,16 @@ go install -ldflags "-X main.Version=1.0.0" ./cmd/merger
 
 ---
 
+## 📦 New release
+
+Notice the tag name.
+
+```
+git tag v1.0.1 && git push --tags
+```
+
+---
+
 ## 🔧 Maintenance
 
 Upgrading go version in go.mod
