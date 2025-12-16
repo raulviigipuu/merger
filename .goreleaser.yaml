@@ -1,0 +1,19 @@
+version: 2
+
+builds:
+  - id: merger
+    main: ./cmd/merger
+    binary: merger
+    env: [CGO_ENABLED=0]
+    goos: [linux, windows, darwin]
+    goarch: [amd64]
+    ldflags:
+      - -s -w -X main.Version={{ .Tag }}
+
+archives:
+  - format: zip
+    name_template: "merger-{{ .Os }}-{{ .Arch }}"
+
+checksum:
+  name_template: "checksums.txt"
+  algorithm: sha256
