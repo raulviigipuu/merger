@@ -14,8 +14,9 @@ jobs:
     runs-on: ubuntu-latest
 
     strategy:
+      fail-fast: false
       matrix:
-        goos: [linux, windows]
+        goos: [linux, windows, darwin]
         goarch: [amd64]
 
     steps:
@@ -25,32 +26,26 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: "1.24.3"
+          go-version: "1.25.5"
 
-      - name: Build binary and create zip
-        env:
-          GOOS: ${{ matrix.goos }}
-          GOARCH: ${{ matrix.goarch }}
+      - name: Guardrails (fail fast)
+        shell: bash
         run: |
-          mkdir -p dist
-          
-          # Determine file name based on OS
-          BIN_NAME="merger"
-          if [ "$GOOS" = "windows" ]; then
-            BIN_NAME="merger.exe"
+          set -euo pipefail
+
+          # Ensure tag exists and is non-empty (should be, but guard anyway)
+          if [ -z "${{ github.ref_name }}" ]; then
+            echo "ERROR: github.ref_name is empty (version tag missing)."
+            exit 1
           fi
 
-          # Build binary with version
-          go build -ldflags "-X main.Version=${{ github.ref_name }}" \
-            -o "$BIN_NAME" ./cmd/merger
+          # Ensure main.Version exists in code (simple grep check)
+          if ! grep -R --line-number -E 'var\s+Version\s+string' . >/dev/null; then
+            echo "ERROR: main.Version variable not found. Add: 'var Version string' in package main."
+            exit 1
+          fi
 
-          # Zip it
-          ZIP_NAME="merger-${GOOS}-${GOARCH}.zip"
-          zip -j "dist/$ZIP_NAME" "$BIN_NAME"
-
-      - name: Upload release asset
-        uses: softprops/action-gh-release@v1
-        with:
-          files: dist/*.zip
+      - name: Build binary, zip, and checksum
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch
